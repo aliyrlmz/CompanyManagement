@@ -20,7 +20,7 @@ namespace Domain
             return Convert.ToHexString(hash);
         }
 
-        //need to check.
+        //this is not working cause checkpassword returns false everytime...
         public static bool CheckPassword(string password, string salt, string hash)
         {
             var h = Rfc2898DeriveBytes.Pbkdf2(
