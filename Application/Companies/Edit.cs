@@ -23,7 +23,8 @@ namespace Application.Companies
             {
                 var company = await _context.Companies.FindAsync(request.Company.Id);
                 //this is not working cause checkpassword returns false everytime...
-                if (PasswordHelper.CheckPassword(request.Company.Password, company.Password, company.PasswordSalt))
+                var salt = System.Text.Encoding.UTF8.GetBytes(company.PasswordSalt);
+                if (PasswordHelper.CheckPassword(request.Company.Password, salt ,company.Password))
                 {
                 company.Name = request.Company.Name ?? company.Name;
                 company.Username = request.Company.Username ?? company.Username;

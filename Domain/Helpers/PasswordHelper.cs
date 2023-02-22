@@ -21,16 +21,15 @@ namespace Domain
         }
 
         //this is not working cause checkpassword returns false everytime...
-        public static bool CheckPassword(string password, string salt, string hash)
+        public static bool CheckPassword(string password, byte[] salt2, string hash)
         {
             var h = Rfc2898DeriveBytes.Pbkdf2(
                 System.Text.Encoding.UTF8.GetBytes(password),
-                System.Text.Encoding.UTF8.GetBytes(salt),
+                salt2,
                 iterations,
                 hashAlgorithm,
                 keySize);
             var g = Convert.ToHexString(h);
-
             if (g == hash)
             {
                 return true;
