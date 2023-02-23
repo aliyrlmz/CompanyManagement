@@ -33,5 +33,11 @@ namespace API.Controllers
             company.Id = id;
             return Ok(await Mediator.Send(new Edit.Command{Company = company}));
         }
+
+        [HttpDelete("{id}")] //api/companies/{id}
+        public async Task<ActionResult<Company>> DeleteCompany(long id)
+        {
+            return Ok(await Mediator.Send(new Delete.Command{Id = id}));
+        }
     }
 }

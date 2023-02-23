@@ -1,3 +1,4 @@
+using AutoMapper;
 using Domain;
 using MediatR;
 using Persistence;
@@ -14,29 +15,23 @@ namespace Application.Companies
         public class Handler : IRequestHandler<Command>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IMapper _mapper;
+            public Handler(DataContext context, IMapper mapper)
             {
+                _mapper = mapper;
                 _context = context;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 var company = await _context.Companies.FindAsync(request.Company.Id);
-                //this is not working cause checkpassword returns false everytime...
-                var salt = System.Text.Encoding.UTF8.GetBytes(company.PasswordSalt);
-                if (PasswordHelper.CheckPassword(request.Company.Password, salt ,company.Password))
-                {
-                company.Name = request.Company.Name ?? company.Name;
-                company.Username = request.Company.Username ?? company.Username;
-                company.Email = request.Company.Email ?? company.Email;
+                _mapper.Map(request.Company, company);
+                //Need work
+                company.Password = PasswordHelper.HashPasword(request.Company.Password, out byte[] salt) ?? company.Password;
+                company.PasswordSalt = System.Text.Encoding.UTF8.GetString(salt, 0, salt.Length) ?? company.PasswordSalt;
                 company.updateDate = DateTime.UtcNow.AddHours(3);
                 await _context.SaveChangesAsync();
                 return Unit.Value;
-                }
-                else 
-                {
-                    return Unit.Value;
-                }
             }
         }
     }
