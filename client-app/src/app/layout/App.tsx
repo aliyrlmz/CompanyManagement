@@ -1,20 +1,29 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import axios from 'axios';
 import { Container} from 'semantic-ui-react';
 import { Company } from '../models/company';
 import NavBar from './NavBar';
 import CompanyDashboard from '../../features/companies/dashboard/CompanyDashboard';
+import agent from '../api/agent';
+import LoadingComponent from './LoadingComponent';
 
 function App() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | undefined>(undefined);
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
 
   useEffect(() => {
-    axios.get<Company[]>("http://localhost:5000/api/companies")
-    .then(response => {
-      setCompanies(response.data);
+    agent.Companies.list().then(response => {
+      let companies: Company[] = [];
+      response.forEach(company => {
+        company.updateDate = company.updateDate.split('T')[0];
+        company.createDate = company.createDate.split('T')[0];
+        companies.push(company);
+      })
+      setCompanies(companies);
+      setLoading(false);
     })
   }, [])
 
@@ -36,16 +45,33 @@ function App() {
   }
 
   function handleCreateOrEditCompany(company: Company) {
-    company.id
-    ? setCompanies([...companies.filter(x => x.id !== company.id), company])
-    : setCompanies([...companies, company])
-    setEditMode(false);
-    setSelectedCompany(company);
+    setSubmitting(true);
+    if (company.id) {
+      agent.Companies.update(company).then(() => {
+        setCompanies([...companies.filter(x => x.id !== company.id), company])
+        setSelectedCompany(company);
+        setEditMode(false);
+        setSubmitting(false);
+      })
+    } else {
+      agent.Companies.create(company).then(() => {
+        setCompanies([...companies, company]);
+        setSelectedCompany(company);
+        setEditMode(false);
+        setSubmitting(false);
+      })
+    }
   }
 
   function handleDeleteActivity(id: number) {
+    setSubmitting(true);
+    agent.Companies.delete(id).then(() => {
     setCompanies([...companies.filter(x => x.id !== id)])
+    setSubmitting(false);
+    })
   }
+
+  if (loading) return <LoadingComponent content= {'Loading app'}/>
 
   return (
     <>
@@ -61,6 +87,7 @@ function App() {
           closeForm= {handleFormClose}
           createOrEdit= {handleCreateOrEditCompany}
           deleteCompany = {handleDeleteActivity}
+          submitting = {submitting}
         />
       </Container>
     </>

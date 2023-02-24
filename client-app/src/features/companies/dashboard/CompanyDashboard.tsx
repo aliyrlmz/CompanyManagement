@@ -15,16 +15,20 @@ interface Props {
     closeForm: () => void;
     createOrEdit: (company: Company) => void;
     deleteCompany: (id: number) => void;
+    submitting: boolean;
 }
 
 export default function CompanyDashboard({companies, selectedCompany, deleteCompany,
-        selectCompany, cancelSelectCompany, editMode, openForm, closeForm, createOrEdit}: Props) {
+        selectCompany, cancelSelectCompany,
+        editMode, openForm,
+        closeForm, createOrEdit, submitting}: Props) {
     return (
         <Grid>
             <Grid.Column width='10'>
                 <CompanyList companies={companies}
                     selectCompany={selectCompany}
                     deleteCompany={deleteCompany}
+                    submitting= {submitting}
                 />
             </Grid.Column>
             <Grid.Column width='6'>
@@ -36,7 +40,11 @@ export default function CompanyDashboard({companies, selectedCompany, deleteComp
                 />}
                 {editMode &&
                     <CompanyForm
-                    closeForm= {closeForm} company= {selectedCompany} createOrEdit= {createOrEdit}/>}
+                    closeForm= {closeForm}
+                    company= {selectedCompany}
+                    createOrEdit= {createOrEdit}
+                    submitting={submitting}
+                    />}
             </Grid.Column>
         </Grid>
     )

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { SyntheticEvent, useState } from 'react';
 import { Button, Item, Label, Segment } from 'semantic-ui-react';
 import { Company } from '../../../app/models/company';
 
@@ -6,9 +6,16 @@ interface Props {
     companies: Company[];
     selectCompany: (id: number) => void;
     deleteCompany: (id: number) => void;
+    submitting: boolean;
 }
 
-export default function CompanyList({companies, selectCompany, deleteCompany}: Props) {
+export default function CompanyList({companies, selectCompany, deleteCompany, submitting}: Props) {
+    const [target, setTarget] = useState('');
+
+    function handleActivityDelete(e: SyntheticEvent<HTMLButtonElement>, id: number){
+        setTarget(e.currentTarget.name);
+        deleteCompany(id);
+    }
     return (
         <Segment>
             <Item.Group divided>
@@ -23,7 +30,13 @@ export default function CompanyList({companies, selectCompany, deleteCompany}: P
                             </Item.Description>
                             <Item.Extra>
                                 <Button onClick={() => selectCompany(company.id)} floated='right' content='View' color='blue' />
-                                <Button onClick={() => deleteCompany(company.id)} floated='right' content='Delete' color='red' />
+                                <Button
+                                    name={company.id}
+                                    loading={submitting && target === company.id.toLocaleString()}
+                                    onClick={(e) => handleActivityDelete(e, company.id)}
+                                    floated='right'
+                                    content='Delete'
+                                    color='red' />
                                 <Label basic content={company.updateDate}/>
                             </Item.Extra>
                         </Item.Content>

@@ -6,9 +6,10 @@ interface Props {
     company: Company | undefined;
     closeForm: () => void;
     createOrEdit: (company: Company) => void;
+    submitting: boolean;
 }
 
-export default function CompanyForm({company: selectedCompany, closeForm, createOrEdit}: Props){
+export default function CompanyForm({company: selectedCompany, closeForm, createOrEdit, submitting}: Props){
 
     const initialState = selectedCompany ?? {
         id: Number(''),
@@ -40,7 +41,7 @@ export default function CompanyForm({company: selectedCompany, closeForm, create
                 <Form.Input placeholder='Username' value= {company.username} name= 'username' onChange={handleInputChange}/>
                 <Form.Input placeholder='Email' value= {company.email} name= 'email' onChange={handleInputChange}/>
                 <Form.Input placeholder='Password' name= 'password' onChange={handleInputChange}/>
-                <Button floated='right' positive type ='submit' content='Submit'/>
+                <Button loading={submitting} floated='right' positive type ='submit' content='Submit'/>
                 <Button onClick={closeForm} floated='right' type ='button' content='Cancel'/>
             </Form>
         </Segment>
